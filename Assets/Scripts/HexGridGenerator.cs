@@ -5,13 +5,18 @@ using UnityEngine;
 public class HexGridGenerator : MonoBehaviour
 {
     public GameObject hexPrefab;    // Hexagon prefab
+    public GameObject playerSpawnPrefab; // Player spawn token prefab
     public GameObject specialHexPrefab; // Special hexagon prefab
+    public GameObject token; // Player token prefab
+
     public int gridSize = 2;        // Number of rings of hexagons to generate
     public float generationDelay = 0.1f; // Delay between generating each hexagon
     public float hexdistancex = 1.15f;
     public float hexdistancez = 0.575f;
+    public Vector3 playerOffset = new Vector3(0, 0.5f, 0); // Offset for player spawn position
 
     private Dictionary<Vector3, GameObject> hexGrid = new Dictionary<Vector3, GameObject>();
+    private List<Vector3> outermostRingPositions = new List<Vector3>();
 
     void Start()
     {
@@ -21,7 +26,7 @@ public class HexGridGenerator : MonoBehaviour
 
     IEnumerator GenerateHexagon()
     {
-        yield return StartCoroutine(InstantiateHexagon(Vector3.zero, 0, 0, 0));
+        yield return StartCoroutine(InstantiateHexagon(Vector3.zero, 0, 0));
 
         // Generate subsequent rings
         for (int depth = 1; depth <= gridSize; depth++)
@@ -49,16 +54,33 @@ public class HexGridGenerator : MonoBehaviour
                     }
                 }
             }
-
+            outermostRingPositions.Clear();
             foreach (var newPosition in newHexPositions)
             {
-                yield return StartCoroutine(InstantiateHexagon(newPosition, 0, 0, depth));
+                yield return StartCoroutine(InstantiateHexagon(newPosition, 0, depth));
+                outermostRingPositions.Add(newPosition); // Track positions of the outermost ring
+            }
+        }
+        if (outermostRingPositions.Count > 0)
+        {
+            Vector3 playerSpawnPosition = outermostRingPositions[Random.Range(0, outermostRingPositions.Count)] + playerOffset;
+            token = Instantiate(playerSpawnPrefab, playerSpawnPosition, Quaternion.identity);
+            Tile initialTile = GetNearestTile(token.transform.position);
+            token.GetComponent<PlayerToken>().currentTile = initialTile;
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.SetCurrentPlayerToken(token);
+                Debug.Log("Player token set in GameManager.");
+            }
+            else
+            {
+                Debug.LogError("GameManager instance is null.");
             }
         }
         ReplaceRandomHexagon();
     }
 
-    IEnumerator InstantiateHexagon(Vector3 position, int q, int r, int depth)
+    IEnumerator InstantiateHexagon(Vector3 position, int q, int r)
     {
         // Check if the position is already occupied by a hexagon using collider check
         Collider[] colliders = Physics.OverlapSphere(position, 0.5f); // Adjust radius as needed
@@ -74,6 +96,24 @@ public class HexGridGenerator : MonoBehaviour
         // Wait for the specified delay
         yield return new WaitForSeconds(generationDelay);
     }
+
+    Tile GetNearestTile(Vector3 position)
+    {
+        Tile nearestTile = null;
+        float minDistance = float.MaxValue;
+
+        foreach (var hex in hexGrid.Values)
+        {
+            float distance = Vector3.Distance(position, hex.transform.position);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                nearestTile = hex.GetComponent<Tile>();
+            }
+        }
+        return nearestTile;
+    }
+
     void ReplaceRandomHexagon()
     {
         // Choose a random hexagon to replace
@@ -89,3 +129,4 @@ public class HexGridGenerator : MonoBehaviour
         hexGrid[randomKey] = specialHex; // Replace the hexagon in the dictionary
     }
 }
+
