@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public float panSpeed = 20f;
-    public float scrollSpeed = 2f;
+    public GameObject pivot; // Referencia al GameObject que actúa como pivote de la cámara
     public float rotationSpeed = 100f;
     public float minY = 10f;
     public float maxY = 80f;
@@ -17,42 +14,38 @@ public class CameraController : MonoBehaviour
     {
         Vector3 pos = transform.position;
 
-        // Movimiento hacia los bordes de la pantalla
-        if (Input.mousePosition.y >= Screen.height - panBorderThickness)
-        {
-            pos.z += panSpeed * Time.deltaTime;
-        }
-        if (Input.mousePosition.y <= panBorderThickness)
-        {
-            pos.z -= panSpeed * Time.deltaTime;
-        }
-        if (Input.mousePosition.x >= Screen.width - panBorderThickness)
-        {
-            pos.x += panSpeed * Time.deltaTime;
-        }
-        if (Input.mousePosition.x <= panBorderThickness)
-        {
-            pos.x -= panSpeed * Time.deltaTime;
-        }
-
         // Zoom con la rueda del ratón
         float scroll = Input.GetAxis("Mouse ScrollWheel");
-        pos.y -= scroll * scrollSpeed * 100f * Time.deltaTime;
+        pos.y -= scroll * 10f * Time.deltaTime;
         pos.y = Mathf.Clamp(pos.y, minY, maxY);
 
-        // Rotación de la cámara con el botón derecho del ratón
-        if (Input.GetMouseButtonDown(1))
+        // Movimiento hacia los bordes laterales de la pantalla para rotar
+        if (Input.mousePosition.x >= Screen.width - panBorderThickness)
         {
-            lastMousePosition = Input.mousePosition;
+            RotateCameraAroundPivot(Vector3.up);
         }
-        if (Input.GetMouseButton(1))
+        else if (Input.mousePosition.x <= panBorderThickness)
         {
-            Vector3 deltaMousePosition = Input.mousePosition - lastMousePosition;
-            transform.Rotate(Vector3.up, deltaMousePosition.x * rotationSpeed * Time.deltaTime, Space.World);
-            lastMousePosition = Input.mousePosition;
+            RotateCameraAroundPivot(Vector3.down);
         }
 
         transform.position = pos;
     }
-}
 
+    void RotateCameraAroundPivot(Vector3 axis)
+    {
+        if (pivot != null)
+        {
+            Vector3 pivotPosition = pivot.transform.position;
+            Vector3 cameraPosition = transform.position;
+
+            Vector3 offset = cameraPosition - pivotPosition;
+
+            float angle = rotationSpeed * Time.deltaTime;
+
+            transform.RotateAround(pivotPosition, axis, angle);
+
+            transform.position = pivotPosition + offset;
+        }
+    }
+}

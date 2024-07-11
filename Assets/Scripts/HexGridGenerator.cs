@@ -9,7 +9,7 @@ public class HexGridGenerator : MonoBehaviour
     public GameObject specialHexPrefab; // Special hexagon prefab
     public GameObject token; // Player token prefab
 
-    public int gridSize = 2;        // Number of rings of hexagons to generate
+    public int gridSize = 8;        // Number of rings of hexagons to generate
     public float generationDelay = 0.1f; // Delay between generating each hexagon
     public float hexdistancex = 1.15f;
     public float hexdistancez = 0.575f;
@@ -77,7 +77,7 @@ public class HexGridGenerator : MonoBehaviour
                 Debug.LogError("GameManager instance is null.");
             }
         }
-        ReplaceRandomHexagon();
+        ReplaceRandomHexagons(10); // Replace 10 random hexagons
     }
 
     IEnumerator InstantiateHexagon(Vector3 position, int q, int r)
@@ -114,19 +114,36 @@ public class HexGridGenerator : MonoBehaviour
         return nearestTile;
     }
 
-    void ReplaceRandomHexagon()
+    void ReplaceRandomHexagons(int numberOfHexagons)
     {
-        // Choose a random hexagon to replace
-        Vector3 randomKey = new List<Vector3>(hexGrid.Keys)[Random.Range(0, hexGrid.Count)];
-        GameObject oldHex = hexGrid[randomKey];
+        // Filter hexagons to include only those within the 8th ring or lower
+        List<Vector3> validHexPositions = new List<Vector3>();
+        foreach (var hexPos in hexGrid.Keys)
+        {
+            if (Mathf.Abs(hexPos.x) + Mathf.Abs(hexPos.z) <= 8) // Adjust this condition as needed
+            {
+                validHexPositions.Add(hexPos);
+            }
+        }
 
-        // Destroy the old hexagon
-        Destroy(oldHex);
+        // Ensure there are enough hexagons to replace
+        numberOfHexagons = Mathf.Min(numberOfHexagons, validHexPositions.Count);
 
-        // Instantiate the special hexagon prefab at the same position
-        GameObject specialHex = Instantiate(specialHexPrefab, randomKey, Quaternion.identity);
-        specialHex.transform.SetParent(this.transform); // Set parent to keep hierarchy clean
-        hexGrid[randomKey] = specialHex; // Replace the hexagon in the dictionary
+        for (int i = 0; i < numberOfHexagons; i++)
+        {
+            // Choose a random valid hexagon to replace
+            Vector3 randomKey = validHexPositions[Random.Range(0, validHexPositions.Count)];
+            validHexPositions.Remove(randomKey); // Remove the chosen hexagon to avoid duplicates
+
+            GameObject oldHex = hexGrid[randomKey];
+
+            // Destroy the old hexagon
+            Destroy(oldHex);
+
+            // Instantiate the special hexagon prefab at the same position
+            GameObject specialHex = Instantiate(specialHexPrefab, randomKey, Quaternion.identity);
+            specialHex.transform.SetParent(this.transform); // Set parent to keep hierarchy clean
+            hexGrid[randomKey] = specialHex; // Replace the hexagon in the dictionary
+        }
     }
 }
-
