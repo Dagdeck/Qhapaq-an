@@ -17,6 +17,7 @@ public class HexGridGenerator : MonoBehaviour
 
     private Dictionary<Vector3, GameObject> hexGrid = new Dictionary<Vector3, GameObject>();
     private List<Vector3> outermostRingPositions = new List<Vector3>();
+    private List<Vector3> cornerPositions = new List<Vector3>();
 
     void Start()
     {
@@ -60,10 +61,11 @@ public class HexGridGenerator : MonoBehaviour
                 yield return StartCoroutine(InstantiateHexagon(newPosition, 0, depth));
                 outermostRingPositions.Add(newPosition); // Track positions of the outermost ring
             }
+            DetermineCornerPositions();
         }
         if (outermostRingPositions.Count > 0)
         {
-            Vector3 playerSpawnPosition = outermostRingPositions[Random.Range(0, outermostRingPositions.Count)] + playerOffset;
+            Vector3 playerSpawnPosition = cornerPositions[Random.Range(0,4)] + playerOffset;
             token = Instantiate(playerSpawnPrefab, playerSpawnPosition, Quaternion.identity);
             Tile initialTile = GetNearestTile(token.transform.position);
             token.GetComponent<PlayerToken>().currentTile = initialTile;
@@ -95,6 +97,50 @@ public class HexGridGenerator : MonoBehaviour
 
         // Wait for the specified delay
         yield return new WaitForSeconds(generationDelay);
+    }
+
+    void DetermineCornerPositions()
+    {
+        cornerPositions.Clear();
+
+        // Define the 6 corners based on the outermost ring of the hexagon grid
+        float outerRadius = gridSize * hexdistancex;
+        Vector3[] directions = new Vector3[]
+        {
+            //new Vector3(outerRadius, 0, 0),                                 // Right
+            new Vector3(0.5f * outerRadius, 0, Mathf.Sqrt(3) / 2 * outerRadius), // Top-right
+            new Vector3(-0.5f * outerRadius, 0, Mathf.Sqrt(3) / 2 * outerRadius), // Top-left
+            //new Vector3(-outerRadius, 0, 0),                                // Left
+            new Vector3(-0.5f * outerRadius, 0, -Mathf.Sqrt(3) / 2 * outerRadius), // Bottom-left
+            new Vector3(0.5f * outerRadius, 0, -Mathf.Sqrt(3) / 2 * outerRadius)  // Bottom-right
+        };
+
+        foreach (var direction in directions)
+        {
+            Vector3 nearestHexPosition = FindNearestHexPosition(direction);
+            if (nearestHexPosition != Vector3.zero)
+            {
+                cornerPositions.Add(nearestHexPosition);
+            }
+        }
+    }
+
+    Vector3 FindNearestHexPosition(Vector3 position)
+    {
+        Vector3 nearestPosition = Vector3.zero;
+        float minDistance = float.MaxValue;
+
+        foreach (var hexPosition in hexGrid.Keys)
+        {
+            float distance = Vector3.Distance(position, hexPosition);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                nearestPosition = hexPosition;
+            }
+        }
+
+        return nearestPosition;
     }
 
     Tile GetNearestTile(Vector3 position)

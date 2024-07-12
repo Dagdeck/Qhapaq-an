@@ -931,9 +931,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 740405ab6fd878140b889132d5b6fb18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hexPrefab: {fileID: 1901911034279994, guid: 61a4f649633a1f94abeb21559df74bd4, type: 3}
+  hexPrefab: {fileID: 5938254910244354477, guid: b584be8b53dfe8e468ffac5fac88197c, type: 3}
   playerSpawnPrefab: {fileID: 6715849965030274329, guid: d41266d7f6a687e4faedcae73b4c7d1f, type: 3}
-  specialHexPrefab: {fileID: 1165385814476940, guid: 2e0f1312996d68349933ef1d0445cd09, type: 3}
+  specialHexPrefab: {fileID: 1520068213326888, guid: d8deb0d5cca03814e8f5cd71fb9e7a1e, type: 3}
   token: {fileID: 0}
   gridSize: 10
   generationDelay: 0.01
