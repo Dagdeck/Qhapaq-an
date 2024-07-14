@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -7,8 +8,11 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     public GameObject playerTokenPrefab;
     private GameObject currentPlayerToken;
+    private List<GameObject> enemyTokens = new List<GameObject>();
+    private HexGridGenerator hexGridGenerator;
 
     private List<Tile> currentPath = new List<Tile>();
+    private Dictionary<GameObject, Tile> currentTiles = new Dictionary<GameObject, Tile>();
     public bool isPathBuilding = false;
     private int maxPathLength = 0;
 
@@ -29,6 +33,18 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    private void Start()
+    {
+        hexGridGenerator = FindObjectOfType<HexGridGenerator>();
+        if (hexGridGenerator == null)
+        {
+            Debug.LogError("HexGridGenerator not found!");
+        }
+    }
+    void Update()
+    {
+        if (currentPlayerToken == null) return;
+    }
     public void SetMaxPathLength(int length)
     {
         maxPathLength = length;
@@ -37,6 +53,90 @@ public class GameManager : MonoBehaviour
     public void SetCurrentPlayerToken(GameObject token)
     {
         currentPlayerToken = token;
+    }
+    public void AddEnemyToken(GameObject token)
+    {
+        enemyTokens.Add(token);
+    }
+    public void PlayerMoveComplete()
+    {
+        StartCoroutine(EnemyTurn());
+    }
+
+    private IEnumerator EnemyTurn()
+    {
+        Debug.Log("Enemy turn started.");
+        foreach (var enemy in enemyTokens)
+        {
+            yield return StartCoroutine(enemy.GetComponent<EnemyToken>().MoveTowardsPlayerCoroutine(currentPlayerToken));
+        }
+        Debug.Log("Enemy turn ended.");
+    }
+    /*public void MoveEnemiesTowardsPlayer()
+    {
+        foreach (var enemy in enemyTokens)
+        {
+            StartCoroutine(MoveEnemyTowardsPlayer(enemy));
+        }
+    }
+    public IEnumerator MoveEnemyTowardsPlayer(GameObject enemy)
+    {
+        Tile enemyCurrentTile = GetCurrentTile(enemy);
+        Tile playerTile = GetCurrentTile(currentPlayerToken); // Assuming a single player for now
+
+        if (enemyCurrentTile == null || playerTile == null)
+        {
+            Debug.LogError("Current tile or player tile is null.");
+            yield break;
+        }
+
+        List<Tile> path = enemyCurrentTile.FindPathTo(playerTile);
+
+        if (path.Count > 0)
+        {
+            yield return StartCoroutine(MoveToTile(enemy, path[0]));
+        }
+        else
+        {
+            Debug.LogError("No path found.");
+        }
+    }*/
+    private IEnumerator MoveToTile(GameObject gameObject, Tile newTile)
+    {
+        float journeyLength = Vector3.Distance(gameObject.transform.position, newTile.transform.position);
+        float startTime = Time.time;
+
+        while (Vector3.Distance(gameObject.transform.position, newTile.transform.position) > 0.01f)
+        {
+            float distCovered = (Time.time - startTime) * 1f; // Adjust speed as needed
+            float fracJourney = distCovered / journeyLength;
+            gameObject.transform.position = Vector3.Lerp(gameObject.transform.position, newTile.transform.position, fracJourney);
+            yield return null;
+        }
+
+        gameObject.transform.position = newTile.transform.position; // Ensure final position is exact
+        GameManager.Instance.UpdateCurrentTile(gameObject, newTile);
+    }
+
+    public Tile GetCurrentTile(GameObject gameObject)
+    {
+        if (currentTiles.ContainsKey(gameObject))
+        {
+            return currentTiles[gameObject];
+        }
+        return null;
+    }
+
+    public void UpdateCurrentTile(GameObject gameObject, Tile newTile)
+    {
+        if (currentTiles.ContainsKey(gameObject))
+        {
+            currentTiles[gameObject] = newTile;
+        }
+        else
+        {
+            currentTiles.Add(gameObject, newTile);
+        }
     }
 
     public void StartPathBuilding()
@@ -112,7 +212,6 @@ public class GameManager : MonoBehaviour
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-
             currentPlayerToken.transform.position = endPosition;
             //Reset the color of the tile
             tile.ResetColor();
@@ -122,5 +221,6 @@ public class GameManager : MonoBehaviour
         currentPath.Clear();
         //Reset the path building mode
         isPathBuilding = false;
+        PlayerMoveComplete(); // Notify the GameManager that the player's move is complete
     }
 }

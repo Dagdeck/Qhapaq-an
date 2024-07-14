@@ -226,7 +226,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 158, y: -160}
+  m_AnchoredPosition: {x: 131, y: -160}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &245454276
@@ -801,7 +801,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 331, y: -160}
+  m_AnchoredPosition: {x: 310, y: -160}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1364639462
@@ -935,11 +935,13 @@ MonoBehaviour:
   playerSpawnPrefab: {fileID: 6715849965030274329, guid: d41266d7f6a687e4faedcae73b4c7d1f, type: 3}
   specialHexPrefab: {fileID: 1520068213326888, guid: d8deb0d5cca03814e8f5cd71fb9e7a1e, type: 3}
   token: {fileID: 0}
-  gridSize: 10
+  enemyPrefab: {fileID: 8257682790686163239, guid: ed1d97e5ad5e34c4786700d42f986b12, type: 3}
+  gridSize: 7
   generationDelay: 0.01
   hexdistancex: 1.15
   hexdistancez: 0.575
   playerOffset: {x: 0, y: 0.65, z: 0}
+  enemyOffset: {x: 0, y: 0.5, z: 0}
 --- !u!114 &1867559256
 MonoBehaviour:
   m_ObjectHideFlags: 0

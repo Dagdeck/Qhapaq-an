@@ -8,6 +8,7 @@ public class HexGridGenerator : MonoBehaviour
     public GameObject playerSpawnPrefab; // Player spawn token prefab
     public GameObject specialHexPrefab; // Special hexagon prefab
     public GameObject token; // Player token prefab
+    public GameObject enemyPrefab; // Enemy prefab
 
     public int gridSize = 8;        // Number of rings of hexagons to generate
     public float generationDelay = 0.1f; // Delay between generating each hexagon
@@ -15,9 +16,10 @@ public class HexGridGenerator : MonoBehaviour
     public float hexdistancez = 0.575f;
     public Vector3 playerOffset = new Vector3(0, 0.5f, 0); // Offset for player spawn position
 
-    private Dictionary<Vector3, GameObject> hexGrid = new Dictionary<Vector3, GameObject>();
+    public Dictionary<Vector3, GameObject> hexGrid = new Dictionary<Vector3, GameObject>();
     private List<Vector3> outermostRingPositions = new List<Vector3>();
     private List<Vector3> cornerPositions = new List<Vector3>();
+    public Vector3 enemyOffset = new Vector3(0, 0.5f, 0); // Offset for enemy spawn position
 
     void Start()
     {
@@ -65,7 +67,7 @@ public class HexGridGenerator : MonoBehaviour
         }
         if (outermostRingPositions.Count > 0)
         {
-            Vector3 playerSpawnPosition = cornerPositions[Random.Range(0,4)] + playerOffset;
+            Vector3 playerSpawnPosition = cornerPositions[Random.Range(0, cornerPositions.Count)] + playerOffset;
             token = Instantiate(playerSpawnPrefab, playerSpawnPosition, Quaternion.identity);
             Tile initialTile = GetNearestTile(token.transform.position);
             token.GetComponent<PlayerToken>().currentTile = initialTile;
@@ -80,6 +82,7 @@ public class HexGridGenerator : MonoBehaviour
             }
         }
         ReplaceRandomHexagons(10); // Replace 10 random hexagons
+        SpawnEnemies(5);
     }
 
     IEnumerator InstantiateHexagon(Vector3 position, int q, int r)
@@ -94,6 +97,13 @@ public class HexGridGenerator : MonoBehaviour
         GameObject hex = Instantiate(hexPrefab, position, Quaternion.identity);
         hex.transform.SetParent(this.transform); // Set parent to keep hierarchy clean
         hexGrid[position] = hex; // Add the position to the dictionary
+
+        // Ensure the Tile component is attached to the hexagon prefab
+        Tile tile = hex.GetComponent<Tile>();
+        if (tile == null)
+        {
+            tile = hex.AddComponent<Tile>();
+        }
 
         // Wait for the specified delay
         yield return new WaitForSeconds(generationDelay);
@@ -148,17 +158,28 @@ public class HexGridGenerator : MonoBehaviour
         Tile nearestTile = null;
         float minDistance = float.MaxValue;
 
-        foreach (var hex in hexGrid.Values)
+        foreach (var hexPos in hexGrid.Keys)
         {
-            float distance = Vector3.Distance(position, hex.transform.position);
+            float distance = Vector3.Distance(position, hexPos);
             if (distance < minDistance)
             {
                 minDistance = distance;
-                nearestTile = hex.GetComponent<Tile>();
+                nearestTile = hexGrid[hexPos].GetComponent<Tile>();
             }
         }
+
+        if (nearestTile != null)
+        {
+            Debug.Log("Nearest tile to position " + position + " is at " + nearestTile.transform.position);
+        }
+        else
+        {
+            Debug.LogError("No nearest tile found for position " + position);
+        }
+
         return nearestTile;
     }
+
 
     void ReplaceRandomHexagons(int numberOfHexagons)
     {
@@ -190,6 +211,35 @@ public class HexGridGenerator : MonoBehaviour
             GameObject specialHex = Instantiate(specialHexPrefab, randomKey, Quaternion.identity);
             specialHex.transform.SetParent(this.transform); // Set parent to keep hierarchy clean
             hexGrid[randomKey] = specialHex; // Replace the hexagon in the dictionary
+        }
+    }
+
+    void SpawnEnemies(int numberOfEnemies)
+    {
+        List<Vector3> availablePositions = new List<Vector3>(hexGrid.Keys);
+        availablePositions.RemoveAll(pos => cornerPositions.Contains(pos));
+
+        for (int i = 0; i < numberOfEnemies && availablePositions.Count > 0; i++)
+        {
+            Vector3 spawnPosition = availablePositions[Random.Range(0, availablePositions.Count)] + enemyOffset;
+            Debug.Log("Attempting to spawn enemy at: " + spawnPosition);
+
+            GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+
+            // Attempt to find the nearest tile to the enemy's spawn position
+            Tile enemyInitialTile = GetNearestTile(spawnPosition);
+            if (enemyInitialTile != null)
+            {
+                enemy.GetComponent<EnemyToken>().currentTile = enemyInitialTile;
+                Debug.Log("Assigned enemy to tile at: " + enemyInitialTile.transform.position);
+            }
+            else
+            {
+                Debug.LogError("Failed to find nearest tile for enemy spawn at " + spawnPosition);
+            }
+
+            GameManager.Instance.AddEnemyToken(enemy);
+            availablePositions.Remove(spawnPosition - enemyOffset);
         }
     }
 }
