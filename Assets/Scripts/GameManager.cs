@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
     private void Start()
     {
         hexGridGenerator = FindObjectOfType<HexGridGenerator>();
@@ -41,23 +42,28 @@ public class GameManager : MonoBehaviour
             Debug.LogError("HexGridGenerator not found!");
         }
     }
+
     void Update()
     {
         if (currentPlayerToken == null) return;
     }
+
     public void SetMaxPathLength(int length)
     {
         maxPathLength = length;
         Debug.Log("Max path length set to: " + maxPathLength);
     }
+
     public void SetCurrentPlayerToken(GameObject token)
     {
         currentPlayerToken = token;
     }
+
     public void AddEnemyToken(GameObject token)
     {
         enemyTokens.Add(token);
     }
+
     public void PlayerMoveComplete()
     {
         StartCoroutine(EnemyTurn());
@@ -71,51 +77,6 @@ public class GameManager : MonoBehaviour
             yield return StartCoroutine(enemy.GetComponent<EnemyToken>().MoveTowardsPlayerCoroutine(currentPlayerToken));
         }
         Debug.Log("Enemy turn ended.");
-    }
-    /*public void MoveEnemiesTowardsPlayer()
-    {
-        foreach (var enemy in enemyTokens)
-        {
-            StartCoroutine(MoveEnemyTowardsPlayer(enemy));
-        }
-    }
-    public IEnumerator MoveEnemyTowardsPlayer(GameObject enemy)
-    {
-        Tile enemyCurrentTile = GetCurrentTile(enemy);
-        Tile playerTile = GetCurrentTile(currentPlayerToken); // Assuming a single player for now
-
-        if (enemyCurrentTile == null || playerTile == null)
-        {
-            Debug.LogError("Current tile or player tile is null.");
-            yield break;
-        }
-
-        List<Tile> path = enemyCurrentTile.FindPathTo(playerTile);
-
-        if (path.Count > 0)
-        {
-            yield return StartCoroutine(MoveToTile(enemy, path[0]));
-        }
-        else
-        {
-            Debug.LogError("No path found.");
-        }
-    }*/
-    private IEnumerator MoveToTile(GameObject gameObject, Tile newTile)
-    {
-        float journeyLength = Vector3.Distance(gameObject.transform.position, newTile.transform.position);
-        float startTime = Time.time;
-
-        while (Vector3.Distance(gameObject.transform.position, newTile.transform.position) > 0.01f)
-        {
-            float distCovered = (Time.time - startTime) * 1f; // Adjust speed as needed
-            float fracJourney = distCovered / journeyLength;
-            gameObject.transform.position = Vector3.Lerp(gameObject.transform.position, newTile.transform.position, fracJourney);
-            yield return null;
-        }
-
-        gameObject.transform.position = newTile.transform.position; // Ensure final position is exact
-        GameManager.Instance.UpdateCurrentTile(gameObject, newTile);
     }
 
     public Tile GetCurrentTile(GameObject gameObject)

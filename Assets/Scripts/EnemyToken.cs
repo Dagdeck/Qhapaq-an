@@ -19,9 +19,9 @@ public class EnemyToken : MonoBehaviour
 
         List<Tile> path = enemyCurrentTile.FindPathTo(playerTile);
 
-        if (path.Count > 0)
+        if (path != null && path.Count > 1)
         {
-            Tile nextTile = path[0];
+            Tile nextTile = path[1];
             yield return StartCoroutine(MoveToTile(nextTile));
         }
         else
@@ -29,6 +29,7 @@ public class EnemyToken : MonoBehaviour
             Debug.LogError("No path found.");
         }
     }
+
     private IEnumerator MoveToTile(Tile newTile)
     {
         float journeyLength = Vector3.Distance(transform.position, newTile.transform.position);
@@ -47,6 +48,3 @@ public class EnemyToken : MonoBehaviour
         GameManager.Instance.UpdateCurrentTile(gameObject, newTile);
     }
 }
-
-
-

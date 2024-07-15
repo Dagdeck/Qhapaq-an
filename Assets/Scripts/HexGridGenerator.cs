@@ -4,34 +4,32 @@ using UnityEngine;
 
 public class HexGridGenerator : MonoBehaviour
 {
-    public GameObject hexPrefab;    // Hexagon prefab
-    public GameObject playerSpawnPrefab; // Player spawn token prefab
-    public GameObject specialHexPrefab; // Special hexagon prefab
-    public GameObject token; // Player token prefab
-    public GameObject enemyPrefab; // Enemy prefab
+    public GameObject hexPrefab;
+    public GameObject playerSpawnPrefab;
+    public GameObject[] specialHexPrefabs; // Array of special hexagon prefabs
+    public GameObject token;
+    public GameObject enemyPrefab;
 
-    public int gridSize = 8;        // Number of rings of hexagons to generate
-    public float generationDelay = 0.1f; // Delay between generating each hexagon
+    public int gridSize = 8;
+    public float generationDelay = 0.1f;
     public float hexdistancex = 1.15f;
     public float hexdistancez = 0.575f;
-    public Vector3 playerOffset = new Vector3(0, 0.5f, 0); // Offset for player spawn position
+    public Vector3 playerOffset = new Vector3(0, 0.5f, 0);
+    public Vector3 enemyOffset = new Vector3(0, 0.5f, 0);
 
     public Dictionary<Vector3, GameObject> hexGrid = new Dictionary<Vector3, GameObject>();
     private List<Vector3> outermostRingPositions = new List<Vector3>();
     private List<Vector3> cornerPositions = new List<Vector3>();
-    public Vector3 enemyOffset = new Vector3(0, 0.5f, 0); // Offset for enemy spawn position
 
     void Start()
     {
-        // Start the coroutine to generate the hexagon grid with a delay
         StartCoroutine(GenerateHexagon());
     }
 
     IEnumerator GenerateHexagon()
     {
-        yield return StartCoroutine(InstantiateHexagon(Vector3.zero, 0, 0));
+        yield return StartCoroutine(InstantiateHexagon(Vector3.zero));
 
-        // Generate subsequent rings
         for (int depth = 1; depth <= gridSize; depth++)
         {
             List<Vector3> newHexPositions = new List<Vector3>();
@@ -40,12 +38,12 @@ public class HexGridGenerator : MonoBehaviour
             {
                 Vector3[] directions = new Vector3[]
                 {
-                    new Vector3(hexdistancex, 0, 0),                 // Right
-                    new Vector3(hexdistancez, 0, 1),                // Top-right
-                    new Vector3(-hexdistancez, 0, 1),               // Top-left
-                    new Vector3(-hexdistancex, 0, 0),                // Left
-                    new Vector3(-hexdistancez, 0, -1),              // Bottom-left
-                    new Vector3(hexdistancez, 0, -1)                // Bottom-right
+                    new Vector3(hexdistancex, 0, 0),
+                    new Vector3(hexdistancez, 0, 1),
+                    new Vector3(-hexdistancez, 0, 1),
+                    new Vector3(-hexdistancex, 0, 0),
+                    new Vector3(-hexdistancez, 0, -1),
+                    new Vector3(hexdistancez, 0, -1)
                 };
 
                 foreach (var direction in directions)
@@ -57,14 +55,16 @@ public class HexGridGenerator : MonoBehaviour
                     }
                 }
             }
+
             outermostRingPositions.Clear();
             foreach (var newPosition in newHexPositions)
             {
-                yield return StartCoroutine(InstantiateHexagon(newPosition, 0, depth));
-                outermostRingPositions.Add(newPosition); // Track positions of the outermost ring
+                yield return StartCoroutine(InstantiateHexagon(newPosition));
+                outermostRingPositions.Add(newPosition);
             }
             DetermineCornerPositions();
         }
+
         if (outermostRingPositions.Count > 0)
         {
             Vector3 playerSpawnPosition = cornerPositions[Random.Range(0, cornerPositions.Count)] + playerOffset;
@@ -81,48 +81,37 @@ public class HexGridGenerator : MonoBehaviour
                 Debug.LogError("GameManager instance is null.");
             }
         }
-        ReplaceRandomHexagons(10); // Replace 10 random hexagons
+
+        ReplaceRandomHexagons(50);
         SpawnEnemies(5);
     }
 
-    IEnumerator InstantiateHexagon(Vector3 position, int q, int r)
+    IEnumerator InstantiateHexagon(Vector3 position)
     {
-        // Check if the position is already occupied by a hexagon using collider check
-        Collider[] colliders = Physics.OverlapSphere(position, 0.5f); // Adjust radius as needed
+        Collider[] colliders = Physics.OverlapSphere(position, 0.5f);
         if (colliders.Length > 0)
         {
-            yield break; // Exit if there's already a hexagon at this position
+            yield break;
         }
 
         GameObject hex = Instantiate(hexPrefab, position, Quaternion.identity);
-        hex.transform.SetParent(this.transform); // Set parent to keep hierarchy clean
-        hexGrid[position] = hex; // Add the position to the dictionary
+        hex.transform.SetParent(this.transform);
+        hexGrid[position] = hex;
 
-        // Ensure the Tile component is attached to the hexagon prefab
-        Tile tile = hex.GetComponent<Tile>();
-        if (tile == null)
-        {
-            tile = hex.AddComponent<Tile>();
-        }
-
-        // Wait for the specified delay
+        Tile tile = hex.GetComponent<Tile>() ?? hex.AddComponent<Tile>();
         yield return new WaitForSeconds(generationDelay);
     }
 
     void DetermineCornerPositions()
     {
         cornerPositions.Clear();
-
-        // Define the 6 corners based on the outermost ring of the hexagon grid
         float outerRadius = gridSize * hexdistancex;
         Vector3[] directions = new Vector3[]
         {
-            //new Vector3(outerRadius, 0, 0),                                 // Right
-            new Vector3(0.5f * outerRadius, 0, Mathf.Sqrt(3) / 2 * outerRadius), // Top-right
-            new Vector3(-0.5f * outerRadius, 0, Mathf.Sqrt(3) / 2 * outerRadius), // Top-left
-            //new Vector3(-outerRadius, 0, 0),                                // Left
-            new Vector3(-0.5f * outerRadius, 0, -Mathf.Sqrt(3) / 2 * outerRadius), // Bottom-left
-            new Vector3(0.5f * outerRadius, 0, -Mathf.Sqrt(3) / 2 * outerRadius)  // Bottom-right
+            new Vector3(0.5f * outerRadius, 0, Mathf.Sqrt(3) / 2 * outerRadius),
+            new Vector3(-0.5f * outerRadius, 0, Mathf.Sqrt(3) / 2 * outerRadius),
+            new Vector3(-0.5f * outerRadius, 0, -Mathf.Sqrt(3) / 2 * outerRadius),
+            new Vector3(0.5f * outerRadius, 0, -Mathf.Sqrt(3) / 2 * outerRadius)
         };
 
         foreach (var direction in directions)
@@ -180,37 +169,32 @@ public class HexGridGenerator : MonoBehaviour
         return nearestTile;
     }
 
-
     void ReplaceRandomHexagons(int numberOfHexagons)
     {
-        // Filter hexagons to include only those within the 8th ring or lower
         List<Vector3> validHexPositions = new List<Vector3>();
         foreach (var hexPos in hexGrid.Keys)
         {
-            if (Mathf.Abs(hexPos.x) + Mathf.Abs(hexPos.z) <= 8) // Adjust this condition as needed
+            if (Mathf.Abs(hexPos.x) + Mathf.Abs(hexPos.z) <= 10)
             {
                 validHexPositions.Add(hexPos);
             }
         }
 
-        // Ensure there are enough hexagons to replace
         numberOfHexagons = Mathf.Min(numberOfHexagons, validHexPositions.Count);
 
         for (int i = 0; i < numberOfHexagons; i++)
         {
-            // Choose a random valid hexagon to replace
             Vector3 randomKey = validHexPositions[Random.Range(0, validHexPositions.Count)];
-            validHexPositions.Remove(randomKey); // Remove the chosen hexagon to avoid duplicates
+            validHexPositions.Remove(randomKey);
 
             GameObject oldHex = hexGrid[randomKey];
-
-            // Destroy the old hexagon
             Destroy(oldHex);
 
-            // Instantiate the special hexagon prefab at the same position
-            GameObject specialHex = Instantiate(specialHexPrefab, randomKey, Quaternion.identity);
-            specialHex.transform.SetParent(this.transform); // Set parent to keep hierarchy clean
-            hexGrid[randomKey] = specialHex; // Replace the hexagon in the dictionary
+            // Select a random special hex prefab from the array
+            GameObject specialHex = specialHexPrefabs[Random.Range(0, specialHexPrefabs.Length)];
+            GameObject instantiatedSpecialHex = Instantiate(specialHex, randomKey, Quaternion.identity);
+            instantiatedSpecialHex.transform.SetParent(this.transform);
+            hexGrid[randomKey] = instantiatedSpecialHex;
         }
     }
 
@@ -219,14 +203,28 @@ public class HexGridGenerator : MonoBehaviour
         List<Vector3> availablePositions = new List<Vector3>(hexGrid.Keys);
         availablePositions.RemoveAll(pos => cornerPositions.Contains(pos));
 
-        for (int i = 0; i < numberOfEnemies && availablePositions.Count > 0; i++)
+        int enemiesSpawned = 0;
+        List<Vector3> validSpawnPositions = new List<Vector3>();
+
+        foreach (var pos in availablePositions)
         {
-            Vector3 spawnPosition = availablePositions[Random.Range(0, availablePositions.Count)] + enemyOffset;
+            Vector3 spawnPosition = pos + enemyOffset;
+            int distance = Mathf.Abs((int)spawnPosition.x) + Mathf.Abs((int)spawnPosition.z);
+
+            if (distance <= 7)
+            {
+                validSpawnPositions.Add(spawnPosition);
+            }
+        }
+
+        ShuffleList(validSpawnPositions);
+
+        for (int i = 0; i < Mathf.Min(numberOfEnemies, validSpawnPositions.Count); i++)
+        {
+            Vector3 spawnPosition = validSpawnPositions[i];
             Debug.Log("Attempting to spawn enemy at: " + spawnPosition);
 
             GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
-
-            // Attempt to find the nearest tile to the enemy's spawn position
             Tile enemyInitialTile = GetNearestTile(spawnPosition);
             if (enemyInitialTile != null)
             {
@@ -239,7 +237,23 @@ public class HexGridGenerator : MonoBehaviour
             }
 
             GameManager.Instance.AddEnemyToken(enemy);
-            availablePositions.Remove(spawnPosition - enemyOffset);
+            enemiesSpawned++;
+
+            if (enemiesSpawned >= numberOfEnemies)
+            {
+                break;
+            }
+        }
+    }
+
+    void ShuffleList<T>(List<T> list)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            int randomIndex = Random.Range(i, list.Count);
+            T temp = list[randomIndex];
+            list[randomIndex] = list[i];
+            list[i] = temp;
         }
     }
 }
