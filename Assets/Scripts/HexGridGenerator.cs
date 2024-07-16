@@ -227,7 +227,7 @@ public class HexGridGenerator : MonoBehaviour
             Vector3 spawnPosition = validSpawnPositions[i];
             Debug.Log("Attempting to spawn enemy at: " + spawnPosition);
 
-            GameObject enemy = Instantiate(enemyPrefab[Random.Range(0,2)], spawnPosition, Quaternion.identity);
+            GameObject enemy = Instantiate(enemyPrefab[Random.Range(0,3)], spawnPosition, Quaternion.identity);
             Tile enemyInitialTile = GetNearestTile(spawnPosition);
             if (enemyInitialTile != null)
             {

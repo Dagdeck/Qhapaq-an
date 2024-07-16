@@ -1014,6 +1014,7 @@ MonoBehaviour:
   enemyPrefab:
   - {fileID: 8257682790686163239, guid: ed1d97e5ad5e34c4786700d42f986b12, type: 3}
   - {fileID: 5223055643827415083, guid: 548723bc526e1cb46b4fbf6e42445e21, type: 3}
+  - {fileID: 9195774501307496180, guid: e71f17cbcd42a9e4192857e81694156f, type: 3}
   gridSize: 10
   generationDelay: 0
   hexdistancex: 1.15
@@ -1202,6 +1203,7 @@ MonoBehaviour:
   startKey: 32
   card2: {fileID: 245454276}
   card3: {fileID: 1364639462}
+  card: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

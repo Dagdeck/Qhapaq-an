@@ -8,6 +8,7 @@ public class CardManager : MonoBehaviour
     public KeyCode startKey = KeyCode.Space; // Key to start token movement
     public Button card2;
     public Button card3;
+    public GameObject card;
     private int selectedCardValue = 0;
 
     void Start()
@@ -19,6 +20,19 @@ public class CardManager : MonoBehaviour
 
     void Update()
     {
+        //If the card is clicked, the OnCardSelected method is called with the corresponding card value
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+            {
+                if (hit.collider.gameObject.CompareTag("Card"))
+                {
+                    OnCardSelected(1);
+                }
+            }
+        }
         // Check for the start key press
         if (Input.GetKeyDown(startKey))
         {
