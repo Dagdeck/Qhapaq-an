@@ -21,8 +21,23 @@ public class EnemyToken : MonoBehaviour
 
         if (path != null && path.Count > 1)
         {
-            Tile nextTile = path[1];
-            yield return StartCoroutine(MoveToTile(nextTile));
+            // Depending on the type of enemy, move more than one tile at a time, via tags
+            if (gameObject.CompareTag("Enemy1"))
+            {
+                yield return StartCoroutine(MoveToTile(path[1]));
+            }
+            else if (gameObject.CompareTag("Enemy2"))
+            {
+                yield return StartCoroutine(MoveToTile(path[2]));
+            }
+            else if (gameObject.CompareTag("Enemy3"))
+            {
+                yield return StartCoroutine(MoveToTile(path[3]));
+            }
+            else
+            {
+                Debug.LogError("Enemy tag not recognized.");
+            }
         }
         else
         {

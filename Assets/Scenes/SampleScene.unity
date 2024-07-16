@@ -1011,7 +1011,9 @@ MonoBehaviour:
   - {fileID: 56590491252389594, guid: a32279cff729b4841850e9e4d45158dd, type: 3}
   - {fileID: 1520068213326888, guid: d8deb0d5cca03814e8f5cd71fb9e7a1e, type: 3}
   token: {fileID: 0}
-  enemyPrefab: {fileID: 8257682790686163239, guid: ed1d97e5ad5e34c4786700d42f986b12, type: 3}
+  enemyPrefab:
+  - {fileID: 8257682790686163239, guid: ed1d97e5ad5e34c4786700d42f986b12, type: 3}
+  - {fileID: 5223055643827415083, guid: 548723bc526e1cb46b4fbf6e42445e21, type: 3}
   gridSize: 10
   generationDelay: 0
   hexdistancex: 1.15

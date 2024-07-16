@@ -8,7 +8,7 @@ public class HexGridGenerator : MonoBehaviour
     public GameObject playerSpawnPrefab;
     public GameObject[] specialHexPrefabs; // Array of special hexagon prefabs
     public GameObject token;
-    public GameObject enemyPrefab;
+    public GameObject[] enemyPrefab;
 
     public int gridSize = 8;
     public float generationDelay = 0.1f;
@@ -20,6 +20,7 @@ public class HexGridGenerator : MonoBehaviour
     public Dictionary<Vector3, GameObject> hexGrid = new Dictionary<Vector3, GameObject>();
     private List<Vector3> outermostRingPositions = new List<Vector3>();
     private List<Vector3> cornerPositions = new List<Vector3>();
+    private HashSet<Vector3> specialHexPositions = new HashSet<Vector3>();
 
     void Start()
     {
@@ -195,6 +196,7 @@ public class HexGridGenerator : MonoBehaviour
             GameObject instantiatedSpecialHex = Instantiate(specialHex, randomKey, Quaternion.identity);
             instantiatedSpecialHex.transform.SetParent(this.transform);
             hexGrid[randomKey] = instantiatedSpecialHex;
+            specialHexPositions.Add(randomKey); // Add position to special hex positions set
         }
     }
 
@@ -202,6 +204,7 @@ public class HexGridGenerator : MonoBehaviour
     {
         List<Vector3> availablePositions = new List<Vector3>(hexGrid.Keys);
         availablePositions.RemoveAll(pos => cornerPositions.Contains(pos));
+        availablePositions.RemoveAll(pos => specialHexPositions.Contains(pos)); // Exclude special hex positions
 
         int enemiesSpawned = 0;
         List<Vector3> validSpawnPositions = new List<Vector3>();
@@ -224,7 +227,7 @@ public class HexGridGenerator : MonoBehaviour
             Vector3 spawnPosition = validSpawnPositions[i];
             Debug.Log("Attempting to spawn enemy at: " + spawnPosition);
 
-            GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+            GameObject enemy = Instantiate(enemyPrefab[Random.Range(0,2)], spawnPosition, Quaternion.identity);
             Tile enemyInitialTile = GetNearestTile(spawnPosition);
             if (enemyInitialTile != null)
             {
