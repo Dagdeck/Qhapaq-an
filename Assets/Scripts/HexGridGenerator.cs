@@ -207,12 +207,40 @@ public class HexGridGenerator : MonoBehaviour
             GameObject oldHex = hexGrid[randomKey];
             Destroy(oldHex);
 
-            // Select a random special hex prefab from the array
             GameObject specialHex = specialHexPrefabs[Random.Range(0, specialHexPrefabs.Length)];
             GameObject instantiatedSpecialHex = Instantiate(specialHex, randomKey, Quaternion.identity);
             instantiatedSpecialHex.transform.SetParent(this.transform);
+
+            Tile tile = instantiatedSpecialHex.GetComponent<Tile>();
+            if (tile == null)
+            {
+                tile = instantiatedSpecialHex.AddComponent<Tile>(); // Ensure Tile component is added
+            }
+            tile.isSpecialTile = true; // Set the property
+
             hexGrid[randomKey] = instantiatedSpecialHex;
-            specialHexPositions.Add(randomKey); // Add position to special hex positions set
+            specialHexPositions.Add(randomKey);
+        }
+    }
+    public void ReplaceHexagonWithSpecial(Vector3 position)
+    {
+        if (hexGrid.ContainsKey(position))
+        {
+            GameObject oldHex = hexGrid[position];
+            Destroy(oldHex);
+
+            // Select a random special hex prefab from the array
+            GameObject specialHex = specialHexPrefabs[Random.Range(0, specialHexPrefabs.Length)];
+            GameObject instantiatedSpecialHex = Instantiate(specialHex, position, Quaternion.identity);
+            instantiatedSpecialHex.transform.SetParent(this.transform);
+            hexGrid[position] = instantiatedSpecialHex;
+            specialHexPositions.Add(position); // Add position to special hex positions set
+
+            Tile tile = instantiatedSpecialHex.GetComponent<Tile>();
+            if (tile != null)
+            {
+                tile.SetSpecialTile(true);
+            }
         }
     }
 
@@ -273,6 +301,24 @@ public class HexGridGenerator : MonoBehaviour
             T temp = list[randomIndex];
             list[randomIndex] = list[i];
             list[i] = temp;
+        }
+    }
+    public void ReplaceSpecialHexWithNormalHex(Vector3 position)
+    {
+        if (specialHexPositions.Contains(position))
+        {
+            GameObject specialHex = hexGrid[position];
+            Destroy(specialHex);
+
+            GameObject normalHex = Instantiate(hexPrefab, position, Quaternion.identity);
+            normalHex.transform.SetParent(this.transform);
+
+            hexGrid[position] = normalHex;
+            specialHexPositions.Remove(position);
+        }
+        else
+        {
+            Debug.LogError("Position is not a special hex: " + position);
         }
     }
 }

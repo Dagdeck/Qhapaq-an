@@ -355,6 +355,10 @@ MonoBehaviour:
   - {fileID: 6669902811905615882, guid: 6cc0483d320beb94e84098018f10cfd7, type: 3}
   - {fileID: 5024002269916285705, guid: a62c558c8b9be2f4ba1b469570768d09, type: 3}
   - {fileID: 2861296718265024888, guid: eed20c85ea1100d4aad95a25d3ee2bef, type: 3}
+  - {fileID: 4895142733149490630, guid: be25058234d3c7746bfcbf682935600c, type: 3}
+  - {fileID: 1358494706734721986, guid: 89614af26c15a9040b0e5aa601b229e0, type: 3}
+  - {fileID: 6118715654253728127, guid: b013fd65bc118b34181e5f1c0de72391, type: 3}
+  - {fileID: 8770253882112600830, guid: a1e4d5ccbfad0754aa79c10334f68dbe, type: 3}
   cardSpawnPoints:
   - {fileID: 1394543143}
   - {fileID: 281375975}
@@ -911,6 +915,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTokenPrefab: {fileID: 0}
+  currentPlayerToken: {fileID: 0}
   isPathBuilding: 0
   pathSelectAudioSource: {fileID: 1867559257}
   playerMoveAudioSource: {fileID: 1867559258}

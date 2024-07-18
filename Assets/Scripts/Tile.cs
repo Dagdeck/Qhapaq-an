@@ -1,19 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Tile : MonoBehaviour
 {
     public Color defaultColor = Color.white;
     public Color selectedColor = Color.yellow;
     public Color pathColor = Color.green;
+    public Color highlightColor = Color.cyan;
 
     private Renderer tileRenderer;
+    private Vector3 position;
+
+    public bool isSpecialTile = false;
 
     void Awake()
     {
         tileRenderer = GetComponent<Renderer>();
         ResetColor();
+    }
+    private void Start()
+    {
+        position = transform.position;
     }
 
     public void Highlight()
@@ -33,9 +42,14 @@ public class Tile : MonoBehaviour
 
     void OnMouseDown()
     {
-        if (GameManager.Instance != null && GameManager.Instance.IsPathBuilding)
+        if (GameManager.Instance != null && GameManager.Instance.IsPathBuilding && !isSpecialTile)
         {
             GameManager.Instance.AddTileToPath(this);
+        }
+        else if (isSpecialTile)
+        {
+            Debug.Log("Tile clicked at position: " + position + " Is special: " + isSpecialTile);
+            GameManager.Instance.OnSpecialTileClicked(this);
         }
     }
 
@@ -102,6 +116,35 @@ public class Tile : MonoBehaviour
             }
         }
         return neighbors;
+    }
+
+    public void SetSpecialTile(bool isSpecial)
+    {
+        isSpecialTile = isSpecial;
+        // Change appearance based on whether it's a special tile or not
+        if (isSpecial)
+        {
+            tileRenderer.material.color = Color.red; // Example color for special tile
+        }
+        else
+        {
+            tileRenderer.material.color = defaultColor;
+        }
+    }
+    public void HighlightTile(bool highlight)
+    {
+        if (highlight)
+        {
+            tileRenderer.material.color = highlightColor;
+        }
+        else
+        {
+            tileRenderer.material.color = defaultColor;
+        }
+    }
+    public Vector3 GetPosition()
+    {
+        return transform.position;
     }
 }
 

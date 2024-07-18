@@ -10,6 +10,10 @@ TagManager:
   - Card2
   - Card3
   - Card1
+  - Viento
+  - Luna
+  - Terremoto
+  - Sol
   layers:
   - Default
   - TransparentFX

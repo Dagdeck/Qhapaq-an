@@ -76,7 +76,16 @@ public class CardDrawer : MonoBehaviour
             Debug.Log("Card index is:" +cardIndex);
             MarkSpawnPointFree(card); // Mark the corresponding spawn point as free
             Destroy(card);
-            DrawSingleCard(); // Draw a new card immediately after using one
+            if (card.CompareTag("Viento"))
+            {
+                DrawSingleCard(); // Draw a new card immediately
+                yield return new WaitForEndOfFrame(); // Wait until the end of the frame to ensure the new card is added
+                StartSelectionMode(); // Start the card selection mode
+            }
+            else
+            {
+                DrawSingleCard(); // Draw a new card immediately after using one
+            }
         }
     }
     private void MarkSpawnPointFree(GameObject cardToRemove)
@@ -126,10 +135,6 @@ public class CardDrawer : MonoBehaviour
 
         return closestIndex;
     }
-
-
-
-
     private int GetFreeSpawnPoint()
     {
         for (int i = 0; i < spawnPointsOccupied.Length; i++)
@@ -152,6 +157,33 @@ public class CardDrawer : MonoBehaviour
             }
         }
         return -1; // Spawn point not found
+    }
+    public void DestroyAndReplaceCard()
+    {
+        if (drawnCards.Count > 0)
+        {
+            StartSelectionMode(); // Start the card selection mode
+        }
+        else
+        {
+            Debug.LogError("No cards available to destroy and replace.");
+        }
+    }
+    private void StartSelectionMode()
+    {
+        foreach (GameObject card in drawnCards)
+        {
+            CardSelectionHandler selectionHandler = card.AddComponent<CardSelectionHandler>();
+            selectionHandler.OnCardSelected += OnCardSelected;
+        }
+    }
+    private void OnCardSelected(GameObject selectedCard)
+    {
+        UseCard(selectedCard);
+        foreach (GameObject card in drawnCards)
+        {
+            Destroy(card.GetComponent<CardSelectionHandler>());
+        }
     }
 }
 

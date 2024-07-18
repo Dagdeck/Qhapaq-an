@@ -55,5 +55,55 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 303ca063152b64c469f4496066733a20, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -1220497140850708871}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 303ca063152b64c469f4496066733a20, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2820996307127164140}
   m_SourcePrefab: {fileID: 100100000, guid: 303ca063152b64c469f4496066733a20, type: 3}
+--- !u!1 &248758613818121372 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 303ca063152b64c469f4496066733a20, type: 3}
+  m_PrefabInstance: {fileID: 1131157177927442893}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-1220497140850708871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248758613818121372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2a8958448fbb174cb87cec5d44202d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  pathColor: {r: 0, g: 1, b: 0, a: 1}
+  highlightColor: {r: 0, g: 1, b: 1, a: 1}
+  isSpecialTile: 0
+--- !u!64 &2820996307127164140
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248758613818121372}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -431630381152145056, guid: 303ca063152b64c469f4496066733a20, type: 3}

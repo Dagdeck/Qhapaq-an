@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -68,24 +70,63 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         Debug.Log("Card used!");
         rectTransform.anchoredPosition = startPosition;
-        GameManager.Instance.isPathBuilding = true;
         if (gameObject.CompareTag("Card1"))
         {
+            GameManager.Instance.isPathBuilding = true;
             GameManager.Instance.SetMaxPathLength(1);
+            CardDrawer.Instance.UseCard(gameObject);
         }
         else if (gameObject.CompareTag("Card2"))
         {
+            GameManager.Instance.isPathBuilding = true;
             GameManager.Instance.SetMaxPathLength(2);
+            CardDrawer.Instance.UseCard(gameObject);
         }
         else if (gameObject.CompareTag("Card3"))
         {
+            GameManager.Instance.isPathBuilding = true;
             GameManager.Instance.SetMaxPathLength(3);
+            CardDrawer.Instance.UseCard(gameObject);
+        }
+        else if (gameObject.CompareTag("Viento"))
+        {
+            CardDrawer.Instance.UseCard(gameObject);
+        }
+        else if (gameObject.CompareTag("Luna"))
+        {
+            FreezeRandomEnemy(2);
+            CardDrawer.Instance.UseCard(gameObject);
+        }
+        else if (gameObject.CompareTag("Terremoto"))
+        {
+            GameManager.Instance.StartReplacingTile();
+            CardDrawer.Instance.UseCard(gameObject);
+        }
+        else if (gameObject.CompareTag("Sol"))
+        {
+            GameManager.Instance.currentPlayerToken.GetComponent<PlayerToken>().ActivateShield();
+            CardDrawer.Instance.UseCard(gameObject);
         }
         else
         {
             Debug.LogError("Card tag not recognized.");
         }
-        CardDrawer.Instance.UseCard(gameObject);
+    }
+    private void FreezeRandomEnemy(int turns)
+    {
+        var enemyTags = new string[] { "Enemy1", "Enemy2", "Enemy3" }; // Add all enemy tags here
+        var enemies = new List<GameObject>();
+
+        foreach (var tag in enemyTags)
+        {
+            enemies.AddRange(GameObject.FindGameObjectsWithTag(tag));
+        }
+
+        if (enemies.Count > 0)
+        {
+            var enemyToFreeze = enemies[Random.Range(0, enemies.Count)];
+            enemyToFreeze.GetComponent<EnemyToken>().FreezeForTurns(turns);
+        }
     }
 }
 

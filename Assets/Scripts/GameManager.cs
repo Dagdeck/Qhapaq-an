@@ -7,9 +7,11 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public GameObject playerTokenPrefab;
-    private GameObject currentPlayerToken;
+    public GameObject currentPlayerToken;
     private List<GameObject> enemyTokens = new List<GameObject>();
     private HexGridGenerator hexGridGenerator;
+    private Tile selectedTile;
+    private bool isReplacingTile = false;
 
     private List<Tile> currentPath = new List<Tile>();
     private Dictionary<GameObject, Tile> currentTiles = new Dictionary<GameObject, Tile>();
@@ -207,5 +209,50 @@ public class GameManager : MonoBehaviour
         // Reset the path building mode
         isPathBuilding = false;
         PlayerMoveComplete(); // Notify the GameManager that the player's move is complete
+    }
+    public void TileSelected(Tile tile)
+    {
+        if (selectedTile != null)
+        {
+            selectedTile.HighlightTile(false); // Unhighlight previously selected tile
+        }
+
+        selectedTile = tile;
+        selectedTile.HighlightTile(true); // Highlight the selected tile
+    }
+
+    public void ReplaceSpecialHexWithNormalHex()
+    {
+        if (selectedTile != null && selectedTile.isSpecialTile)
+        {
+            Vector3 position = selectedTile.transform.position;
+            hexGridGenerator.ReplaceSpecialHexWithNormalHex(position);
+        }
+        else
+        {
+            Debug.LogWarning("No selected or non-special tile.");
+        }
+    }
+
+    public void OnSpecialTileClicked(Tile tile)
+    {
+        Debug.Log("Special tile clicked. IsReplacingTile: " + isReplacingTile + " IsSpecialTile: " + tile.isSpecialTile);
+        if (isReplacingTile && tile.isSpecialTile)
+        {
+            hexGridGenerator.ReplaceSpecialHexWithNormalHex(tile.GetPosition());
+            isReplacingTile = false;
+            Debug.Log("Special tile replaced with normal hex at: " + tile.GetPosition());
+        }
+    }
+
+    public void StartReplacingTile()
+    {
+        isReplacingTile = true;
+        Debug.Log("Tile replacement mode started. Click on a special tile to replace it.");
+    }
+    public void ResetGame()
+    {
+        Debug.Log("Game Over!");
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
 }
