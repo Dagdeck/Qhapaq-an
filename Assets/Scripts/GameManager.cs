@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     private Dictionary<GameObject, Tile> currentTiles = new Dictionary<GameObject, Tile>();
     public bool isPathBuilding = false;
     private int maxPathLength = 0;
+    public HashSet<Tile> occupiedTiles = new HashSet<Tile>();
 
     public bool IsPathBuilding
     {
@@ -62,6 +63,11 @@ public class GameManager : MonoBehaviour
     public void AddEnemyToken(GameObject token)
     {
         enemyTokens.Add(token);
+        Tile initialTile = token.GetComponent<EnemyToken>().currentTile;
+        if (initialTile != null)
+        {
+            occupiedTiles.Add(initialTile);
+        }
     }
 
     public void PlayerMoveComplete()
@@ -92,12 +98,18 @@ public class GameManager : MonoBehaviour
     {
         if (currentTiles.ContainsKey(gameObject))
         {
+            occupiedTiles.Remove(currentTiles[gameObject]);
             currentTiles[gameObject] = newTile;
         }
         else
         {
             currentTiles.Add(gameObject, newTile);
         }
+        occupiedTiles.Add(newTile);
+    }
+    public bool IsTileOccupied(Tile tile)
+    {
+        return occupiedTiles.Contains(tile);
     }
 
     public void StartPathBuilding()

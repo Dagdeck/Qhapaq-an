@@ -17,31 +17,52 @@ public class EnemyToken : MonoBehaviour
             yield break;
         }
 
-        List<Tile> path = enemyCurrentTile.FindPathTo(playerTile);
+        bool moved = false;
+        while (!moved)
+        {
+            List<Tile> path = enemyCurrentTile.FindPathTo(playerTile);
 
-        if (path != null && path.Count > 1)
-        {
-            // Depending on the type of enemy, move more than one tile at a time, via tags
-            if (gameObject.CompareTag("Enemy1"))
+            if (path != null && path.Count > 1)
             {
-                yield return StartCoroutine(MoveToTile(path[1]));
+                // Move based on enemy type
+                int moveDistance = 1;
+                if (gameObject.CompareTag("Enemy1"))
+                {
+                    moveDistance = 1;
+                }
+                else if (gameObject.CompareTag("Enemy2"))
+                {
+                    moveDistance = 2;
+                }
+                else if (gameObject.CompareTag("Enemy3"))
+                {
+                    moveDistance = 3;
+                }
+                else
+                {
+                    Debug.LogError("Enemy tag not recognized.");
+                }
+
+                // Ensure the move distance does not exceed the path length
+                moveDistance = Mathf.Min(moveDistance, path.Count - 1);
+
+                // Find a valid tile to move to
+                for (int i = 1; i <= moveDistance; i++)
+                {
+                    Tile newTile = path[i];
+                    if (!GameManager.Instance.IsTileOccupied(newTile))
+                    {
+                        yield return StartCoroutine(MoveToTile(newTile));
+                        moved = true;
+                    }
+                }
             }
-            else if (gameObject.CompareTag("Enemy2"))
+
+            // If no valid move found, break the loop
+            if (!moved)
             {
-                yield return StartCoroutine(MoveToTile(path[2]));
+                break;
             }
-            else if (gameObject.CompareTag("Enemy3"))
-            {
-                yield return StartCoroutine(MoveToTile(path[3]));
-            }
-            else
-            {
-                Debug.LogError("Enemy tag not recognized.");
-            }
-        }
-        else
-        {
-            Debug.LogError("No path found.");
         }
     }
 

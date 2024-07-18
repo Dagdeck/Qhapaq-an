@@ -7,7 +7,9 @@ TagManager:
   - Enemy1
   - Enemy2
   - Enemy3
-  - Card
+  - Card2
+  - Card3
+  - Card1
   layers:
   - Default
   - TransparentFX
