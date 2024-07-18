@@ -22,8 +22,13 @@ public class HexGridGenerator : MonoBehaviour
     private List<Vector3> cornerPositions = new List<Vector3>();
     private HashSet<Vector3> specialHexPositions = new HashSet<Vector3>();
 
+
+    public AudioSource GenerateHexagonAudioSource;
+    public AudioClip GenerateHexagonAudioClip;
+
     void Start()
     {
+        
         StartCoroutine(GenerateHexagon());
     }
 
@@ -53,6 +58,7 @@ public class HexGridGenerator : MonoBehaviour
                     if (!hexGrid.ContainsKey(newPosition) && !newHexPositions.Contains(newPosition))
                     {
                         newHexPositions.Add(newPosition);
+                       
                     }
                 }
             }
@@ -89,17 +95,27 @@ public class HexGridGenerator : MonoBehaviour
 
     IEnumerator InstantiateHexagon(Vector3 position)
     {
+         
+        
         Collider[] colliders = Physics.OverlapSphere(position, 0.5f);
         if (colliders.Length > 0)
         {
+            
             yield break;
         }
 
         GameObject hex = Instantiate(hexPrefab, position, Quaternion.identity);
         hex.transform.SetParent(this.transform);
-        hexGrid[position] = hex;
 
+        // si el sonido no se está reproduciendo, entonces reproduce el sonido
+        if (!GenerateHexagonAudioSource.isPlaying)
+        {
+        GenerateHexagonAudioSource.PlayOneShot(GenerateHexagonAudioClip);
+        }
+        hexGrid[position] = hex;
+         
         Tile tile = hex.GetComponent<Tile>() ?? hex.AddComponent<Tile>();
+         
         yield return new WaitForSeconds(generationDelay);
     }
 

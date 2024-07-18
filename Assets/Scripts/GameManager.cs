@@ -17,6 +17,11 @@ public class GameManager : MonoBehaviour
     private int maxPathLength = 0;
     public HashSet<Tile> occupiedTiles = new HashSet<Tile>();
 
+    // AudioSources para los sonidos
+    public AudioSource pathSelectAudioSource;
+    public AudioSource playerMoveAudioSource;
+    public AudioSource enemyMoveAudio;
+
     public bool IsPathBuilding
     {
         get { return isPathBuilding; }
@@ -80,7 +85,9 @@ public class GameManager : MonoBehaviour
         Debug.Log("Enemy turn started.");
         foreach (var enemy in enemyTokens)
         {
+            enemyMoveAudio.Play(); // Reproduce el sonido de movimiento del enemigo
             yield return StartCoroutine(enemy.GetComponent<EnemyToken>().MoveTowardsPlayerCoroutine(currentPlayerToken));
+            enemyMoveAudio.Stop(); // Detén el sonido de movimiento del enemigo
         }
         Debug.Log("Enemy turn ended.");
     }
@@ -107,6 +114,7 @@ public class GameManager : MonoBehaviour
         }
         occupiedTiles.Add(newTile);
     }
+
     public bool IsTileOccupied(Tile tile)
     {
         return occupiedTiles.Contains(tile);
@@ -130,6 +138,7 @@ public class GameManager : MonoBehaviour
                     currentPath.Add(tile);
                     tile.Select();
                     Debug.Log($"Starting path with tile: {tile.name} at position {tile.transform.position}");
+                    pathSelectAudioSource.Play(); // Reproduce el sonido de selección
                 }
                 else
                 {
@@ -144,6 +153,7 @@ public class GameManager : MonoBehaviour
                     currentPath.Add(tile);
                     tile.Select();
                     Debug.Log($"Added tile to path: {tile.name} at position {tile.transform.position}");
+                    pathSelectAudioSource.Play(); // Reproduce el sonido de selección
                 }
                 else
                 {
@@ -171,6 +181,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator MovePlayerToken()
     {
+        playerMoveAudioSource.Play(); // Reproduce el sonido de movimiento
         foreach (Tile tile in currentPath)
         {
             Vector3 startPosition = currentPlayerToken.transform.position;
@@ -186,13 +197,14 @@ public class GameManager : MonoBehaviour
                 yield return null;
             }
             currentPlayerToken.transform.position = endPosition;
-            //Reset the color of the tile
+            // Reset the color of the tile
             tile.ResetColor();
             currentPlayerToken.GetComponent<PlayerToken>().currentTile = tile;
         }
+        playerMoveAudioSource.Stop(); // Detén el sonido de movimiento
         // Clear the path after movement is complete
         currentPath.Clear();
-        //Reset the path building mode
+        // Reset the path building mode
         isPathBuilding = false;
         PlayerMoveComplete(); // Notify the GameManager that the player's move is complete
     }
