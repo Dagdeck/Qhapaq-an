@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     private HexGridGenerator hexGridGenerator;
     private Tile selectedTile;
     private bool isReplacingTile = false;
+    public bool isActionInProgress = false;
 
     private List<Tile> currentPath = new List<Tile>();
     private Dictionary<GameObject, Tile> currentTiles = new Dictionary<GameObject, Tile>();
@@ -79,6 +80,7 @@ public class GameManager : MonoBehaviour
 
     public void PlayerMoveComplete()
     {
+        isActionInProgress = false;
         StartCoroutine(EnemyTurn());
     }
 
@@ -254,5 +256,10 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Game Over!");
         UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    }
+    public void Victory()
+    {
+        Debug.Log("Congratulations! You have won the game.");
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 }

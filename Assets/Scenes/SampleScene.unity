@@ -894,12 +894,14 @@ MonoBehaviour:
   - {fileID: 6694143875539895763, guid: 59adefe645102e14ca375cbda3edb17b, type: 3}
   - {fileID: 5122859547651900181, guid: 7a43034253cc6034a84d33b099e75791, type: 3}
   - {fileID: 7936768396291878525, guid: 38d0b1df000de2b47a669a6aaef03eef, type: 3}
+  victoryMarkerPrefab: {fileID: 919132149155446097, guid: 357b0a34d6d8040408ab87a8d35aca5b, type: 3}
   gridSize: 10
   generationDelay: 0
   hexdistancex: 1.15
   hexdistancez: 0.575
   playerOffset: {x: 0, y: 0.65, z: 0}
   enemyOffset: {x: 0, y: 0.5, z: 0}
+  victoryMarkerOffset: {x: 0, y: 0, z: 0}
   GenerateHexagonAudioSource: {fileID: 1867559261}
   GenerateHexagonAudioClip: {fileID: 8300000, guid: f6754e992920f2a4baa3fe43df6ac49b, type: 3}
 --- !u!114 &1867559256
@@ -916,6 +918,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTokenPrefab: {fileID: 0}
   currentPlayerToken: {fileID: 0}
+  isActionInProgress: 0
   isPathBuilding: 0
   pathSelectAudioSource: {fileID: 1867559257}
   playerMoveAudioSource: {fileID: 1867559258}

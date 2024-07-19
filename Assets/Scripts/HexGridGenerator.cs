@@ -9,6 +9,7 @@ public class HexGridGenerator : MonoBehaviour
     public GameObject[] specialHexPrefabs; // Array of special hexagon prefabs
     public GameObject token;
     public GameObject[] enemyPrefab;
+    public GameObject victoryMarkerPrefab;
 
     public int gridSize = 8;
     public float generationDelay = 0.1f;
@@ -16,11 +17,13 @@ public class HexGridGenerator : MonoBehaviour
     public float hexdistancez = 0.575f;
     public Vector3 playerOffset = new Vector3(0, 0.5f, 0);
     public Vector3 enemyOffset = new Vector3(0, 0.5f, 0);
+    public Vector3 victoryMarkerOffset = new Vector3(0, 0, 0);
 
     public Dictionary<Vector3, GameObject> hexGrid = new Dictionary<Vector3, GameObject>();
     private List<Vector3> outermostRingPositions = new List<Vector3>();
     private List<Vector3> cornerPositions = new List<Vector3>();
     private HashSet<Vector3> specialHexPositions = new HashSet<Vector3>();
+    private HashSet<Tile> victoryTiles = new HashSet<Tile>();
 
 
     public AudioSource GenerateHexagonAudioSource;
@@ -68,6 +71,14 @@ public class HexGridGenerator : MonoBehaviour
             {
                 yield return StartCoroutine(InstantiateHexagon(newPosition));
                 outermostRingPositions.Add(newPosition);
+
+                // Mark the first ring as victory tiles
+                if (depth == 1)
+                {
+                    Tile tile = hexGrid[newPosition].GetComponent<Tile>();
+                    victoryTiles.Add(tile);
+                    tile.isVictoryTile = true; // Mark as victory tile
+                }
             }
             DetermineCornerPositions();
         }
@@ -88,7 +99,8 @@ public class HexGridGenerator : MonoBehaviour
                 Debug.LogError("GameManager instance is null.");
             }
         }
-
+        Tile centerTile = hexGrid[Vector3.zero].GetComponent<Tile>();
+        SpawnVictoryMarker(centerTile);
         ReplaceRandomHexagons(50);
         SpawnEnemies(5);
     }
@@ -115,10 +127,21 @@ public class HexGridGenerator : MonoBehaviour
         hexGrid[position] = hex;
          
         Tile tile = hex.GetComponent<Tile>() ?? hex.AddComponent<Tile>();
-         
+
+        /*if (position == Vector3.zero)
+        {
+            victoryTiles.Add(tile);
+            tile.isVictoryTile = true; // Mark as victory tile
+        }*/
+
         yield return new WaitForSeconds(generationDelay);
     }
-
+    void SpawnVictoryMarker(Tile centerTile)
+    {
+        Vector3 markerPosition = centerTile.transform.position + victoryMarkerOffset;
+        GameObject marker = Instantiate(victoryMarkerPrefab, markerPosition, Quaternion.identity);
+        marker.transform.localScale = new Vector3(250, 25, 250); // Adjust the scale to cover all victory tiles
+    }
     void DetermineCornerPositions()
     {
         cornerPositions.Clear();
@@ -203,6 +226,11 @@ public class HexGridGenerator : MonoBehaviour
         {
             Vector3 randomKey = validHexPositions[Random.Range(0, validHexPositions.Count)];
             validHexPositions.Remove(randomKey);
+
+            if (hexGrid[randomKey].GetComponent<Tile>().isVictoryTile)
+            {
+                continue;
+            }
 
             GameObject oldHex = hexGrid[randomKey];
             Destroy(oldHex);
@@ -315,6 +343,7 @@ public class HexGridGenerator : MonoBehaviour
 
             hexGrid[position] = normalHex;
             specialHexPositions.Remove(position);
+            GameManager.Instance.PlayerMoveComplete();
         }
         else
         {

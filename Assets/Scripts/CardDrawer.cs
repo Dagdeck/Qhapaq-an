@@ -183,6 +183,7 @@ public class CardDrawer : MonoBehaviour
         foreach (GameObject card in drawnCards)
         {
             Destroy(card.GetComponent<CardSelectionHandler>());
+            GameManager.Instance.isActionInProgress = false;
         }
     }
 }

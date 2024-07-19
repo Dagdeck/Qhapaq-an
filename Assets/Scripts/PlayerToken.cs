@@ -19,5 +19,18 @@ public class PlayerToken : MonoBehaviour
         hasShield = false;
         Debug.Log("Shield removed!");
     }
+    private void Update()
+    {
+        CheckForVictory();
+    }
+
+    private void CheckForVictory()
+    {
+        if (currentTile != null && currentTile.isVictoryTile)
+        {
+            Debug.Log("Player reached a victory tile! You win!");
+            GameManager.Instance.Victory();
+        }
+    }
 }
 

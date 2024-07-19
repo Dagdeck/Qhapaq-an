@@ -60,7 +60,6 @@ public class EnemyToken : MonoBehaviour
                         yield return StartCoroutine(MoveToTile(newTile));
                         moved = true;
                         CheckForPlayer();
-                        break; // Exit loop once moved
                     }
                 }
             }

@@ -68,49 +68,61 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void UseCard()
     {
-        Debug.Log("Card used!");
-        rectTransform.anchoredPosition = startPosition;
-        if (gameObject.CompareTag("Card1"))
+        if (GameManager.Instance.isActionInProgress)
         {
-            GameManager.Instance.isPathBuilding = true;
-            GameManager.Instance.SetMaxPathLength(1);
-            CardDrawer.Instance.UseCard(gameObject);
-        }
-        else if (gameObject.CompareTag("Card2"))
-        {
-            GameManager.Instance.isPathBuilding = true;
-            GameManager.Instance.SetMaxPathLength(2);
-            CardDrawer.Instance.UseCard(gameObject);
-        }
-        else if (gameObject.CompareTag("Card3"))
-        {
-            GameManager.Instance.isPathBuilding = true;
-            GameManager.Instance.SetMaxPathLength(3);
-            CardDrawer.Instance.UseCard(gameObject);
-        }
-        else if (gameObject.CompareTag("Viento"))
-        {
-            CardDrawer.Instance.UseCard(gameObject);
-        }
-        else if (gameObject.CompareTag("Luna"))
-        {
-            FreezeRandomEnemy(2);
-            CardDrawer.Instance.UseCard(gameObject);
-        }
-        else if (gameObject.CompareTag("Terremoto"))
-        {
-            GameManager.Instance.StartReplacingTile();
-            CardDrawer.Instance.UseCard(gameObject);
-        }
-        else if (gameObject.CompareTag("Sol"))
-        {
-            GameManager.Instance.currentPlayerToken.GetComponent<PlayerToken>().ActivateShield();
-            CardDrawer.Instance.UseCard(gameObject);
+            Debug.Log("An action is already in progress. Please wait until it completes.");
+            return;
         }
         else
         {
-            Debug.LogError("Card tag not recognized.");
+            GameManager.Instance.isActionInProgress = true;
+            Debug.Log("Card used!");
+            rectTransform.anchoredPosition = startPosition;
+            if (gameObject.CompareTag("Card1"))
+            {
+                GameManager.Instance.isPathBuilding = true;
+                GameManager.Instance.SetMaxPathLength(1);
+                CardDrawer.Instance.UseCard(gameObject);
+            }
+            else if (gameObject.CompareTag("Card2"))
+            {
+                GameManager.Instance.isPathBuilding = true;
+                GameManager.Instance.SetMaxPathLength(2);
+                CardDrawer.Instance.UseCard(gameObject);
+            }
+            else if (gameObject.CompareTag("Card3"))
+            {
+                GameManager.Instance.isPathBuilding = true;
+                GameManager.Instance.SetMaxPathLength(3);
+                CardDrawer.Instance.UseCard(gameObject);
+            }
+            else if (gameObject.CompareTag("Viento"))
+            {
+                CardDrawer.Instance.UseCard(gameObject);
+            }
+            else if (gameObject.CompareTag("Luna"))
+            {
+                FreezeRandomEnemy(2);
+                CardDrawer.Instance.UseCard(gameObject);
+                GameManager.Instance.PlayerMoveComplete();
+            }
+            else if (gameObject.CompareTag("Terremoto"))
+            {
+                GameManager.Instance.StartReplacingTile();
+                CardDrawer.Instance.UseCard(gameObject);
+            }
+            else if (gameObject.CompareTag("Sol"))
+            {
+                GameManager.Instance.currentPlayerToken.GetComponent<PlayerToken>().ActivateShield();
+                CardDrawer.Instance.UseCard(gameObject);
+                GameManager.Instance.PlayerMoveComplete();
+            }
+            else
+            {
+                Debug.LogError("Card tag not recognized.");
+            }
         }
+
     }
     private void FreezeRandomEnemy(int turns)
     {

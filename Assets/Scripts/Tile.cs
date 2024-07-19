@@ -14,6 +14,7 @@ public class Tile : MonoBehaviour
     private Vector3 position;
 
     public bool isSpecialTile = false;
+    public bool isVictoryTile;
 
     void Awake()
     {
